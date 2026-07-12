@@ -4,24 +4,29 @@
   const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyLD_Zc4CHV9CN971U7gAh0RNOMyTjqQPg5RKWB-SEmd6n4U-QdBk31G1RPKJRIJJc/exec'; 
   let myModal;
 
-  window.onload = () => {
-    // 1. ดึงข้อมูล Header
-    fetch(`${WEB_APP_URL}?action=getHeader`)
-      .then(res => res.json())
-      .then(header => {
-        document.getElementById('mainHeader').innerText = header[0];
-        document.getElementById('subHeader').innerText = header[1];
-      });
+window.onload = () => {
+  // 1. ดึงข้อมูล Header หลัก
+  fetch(`${WEB_APP_URL}?action=getHeader`)
+    .then(res => res.json())
+    .then(header => {
+      const mainH = document.getElementById('mainHeader');
+      const subH = document.getElementById('subHeader');
+      if (mainH && header[0]) mainH.innerText = header[0];
+      if (subH && header[1]) subH.innerText = header[1];
+    }).catch(err => console.error("Header error:", err));
 
-    // 2. ดึงหัวข้อคอลัมน์
-    fetch(`${WEB_APP_URL}?action=getColumns`)
-      .then(res => res.json())
-      .then(cols => {
-        document.getElementById('title_E').innerText = cols[4];
-        document.getElementById('title_G').innerText = cols[6];
-        document.getElementById('title_H').innerText = cols[7];
-      });
-  };
+  // 2. ดึงหัวข้อคอลัมน์จาก Sheet
+  fetch(`${WEB_APP_URL}?action=getColumns`)
+    .then(res => res.json())
+    .then(cols => {
+      const tE = document.getElementById('title_E');
+      const tG = document.getElementById('title_G');
+      const tH = document.getElementById('title_H');
+      if (tE && cols[4]) tE.innerText = cols[4];
+      if (tG && cols[6]) tG.innerText = cols[6];
+      if (tH && cols[7]) tH.innerText = cols[7];
+    }).catch(err => console.error("Columns error:", err));
+};
 
   function performSearch() {
     const id = document.getElementById('studentId').value;
