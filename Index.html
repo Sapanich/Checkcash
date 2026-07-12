@@ -1,0 +1,77 @@
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // นำ URL ที่ได้จาก Web App ของ Google Apps Script มาใส่ที่นี่
+  const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwMi6dVptbwX3tgRujz7pe9t_moyLoSddxU0iGoZmRnXrp2hYJz8xsCs71GQXNhMt8/exec'; 
+  let myModal;
+
+  window.onload = () => {
+    // 1. ดึงข้อมูล Header
+    fetch(`${WEB_APP_URL}?action=getHeader`)
+      .then(res => res.json())
+      .then(header => {
+        document.getElementById('mainHeader').innerText = header[0];
+        document.getElementById('subHeader').innerText = header[1];
+      });
+
+    // 2. ดึงหัวข้อคอลัมน์
+    fetch(`${WEB_APP_URL}?action=getColumns`)
+      .then(res => res.json())
+      .then(cols => {
+        document.getElementById('title_E').innerText = cols[4];
+        document.getElementById('title_G').innerText = cols[6];
+        document.getElementById('title_H').innerText = cols[7];
+      });
+  };
+
+  function performSearch() {
+    const id = document.getElementById('studentId').value;
+    if(!id) return alert('กรุณากรอกรหัสนักศึกษา');
+    
+    document.getElementById('resultArea').style.display = 'none';
+
+    fetch(`${WEB_APP_URL}?action=search&id=${id}`)
+      .then(res => res.json())
+      .then(data => {
+        if(data) {
+          document.getElementById('resultArea').style.display = 'block';
+          document.getElementById('resName').innerText = data.name;
+          document.getElementById('resLevel').innerText = data.level;
+          document.getElementById('resNo').innerText = data.roomNo;
+          document.getElementById('resCurrentDebt').innerText = Number(data.currentDebt).toLocaleString('th-TH');
+          document.getElementById('resOldDebt').innerText = Number(data.oldDebt).toLocaleString('th-TH');
+          document.getElementById('resScholar').innerText = data.scholarship || '-';
+          document.getElementById('resStatus').innerText = data.status;
+        } else {
+          alert('ไม่พบข้อมูลรหัสนักศึกษานี้ในระบบ');
+          document.getElementById('resultArea').style.display = 'none';
+        }
+      });
+  }
+
+  function showLogin() {
+    myModal = new bootstrap.Modal(document.getElementById('adminModal'));
+    myModal.show();
+  }
+
+  function login() {
+    const u = document.getElementById('user').value;
+    const p = document.getElementById('pass').value;
+    
+    fetch(`${WEB_APP_URL}?action=login&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`)
+      .then(res => res.json())
+      .then(isValid => {
+        if(isValid) {
+          document.getElementById('adminBody').innerHTML = `
+            <div class="alert alert-success rounded-3">เข้าสู่ระบบ Admin สำเร็จ!</div>
+            <p class="text-muted">ขณะนี้คุณสามารถแก้ไขข้อมูลได้โดยตรงที่หน้า Google Sheets:</p>
+            <ul class="text-muted">
+              <li>แก้ไขหัวข้อใหญ่: เข้าไปที่ Sheet <strong>'header'</strong> แก้ไขช่อง A1 และ A2</li>
+              <li>แก้ไขหัวข้อคอลัมน์ข้อมูล: เข้าไปที่ Sheet <strong>'studentData'</strong> แก้ไขแถวที่ 1</li>
+            </ul>
+          `;
+        } else {
+          alert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
+        }
+      });
+  }
+</script>
