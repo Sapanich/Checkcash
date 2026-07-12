@@ -125,19 +125,6 @@
       document.getElementById('mainHeader').innerText = 'กรุณาตั้งค่า API_URL';
       return;
     }
-    
-    // ดึงค่า config เริ่มต้นทั้งหมดในรอบเดียวเพื่อความเร็ว
-    fetch(`${API_URL}?action=getInitConfig`)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('mainHeader').innerText = data.header[0] || 'ระบบตรวจสอบข้อมูล';
-        document.getElementById('subHeader').innerText = data.header[1] || '';
-        document.getElementById('title_E').innerText = data.columns[4];
-        document.getElementById('title_G').innerText = data.columns[6];
-        document.getElementById('title_H').innerText = data.columns[7];
-      })
-      .catch(err => console.error("Error loading config:", err));
-  };
 
   function performSearch() {
     const id = document.getElementById('studentId').value;
