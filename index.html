@@ -121,35 +121,27 @@
   let myModal;
 
   window.onload = () => {
-    if (API_URL === 'https://script.google.com/macros/s/AKfycbwmXMK7b12xE-lJbWtfo9QFUTjxMSMCdEzjzEXS6fhO5ae-IJMKEOXrY7JZQp-m7M4/exec') {
+    // ลบหรือแก้เงื่อนไข if อันเก่าออก แล้วให้เหลือแค่นี้พอครับ
+    if (!API_URL) {
       document.getElementById('mainHeader').innerText = 'กรุณาตั้งค่า API_URL';
       return;
     }
-
-  function performSearch() {
-    const id = document.getElementById('studentId').value;
-    if(!id) return alert('กรุณากรอกรหัสนักศึกษา');
     
-    document.getElementById('resultArea').style.display = 'none';
-
-    fetch(`${API_URL}?action=searchStudent&studentId=${id}`)
+    // ดึงค่า config เริ่มต้นทั้งหมดในรอบเดียวเพื่อความเร็ว
+    fetch(`${API_URL}?action=getInitConfig`)
       .then(res => res.json())
       .then(data => {
-        if(data) {
-          document.getElementById('resultArea').style.display = 'block';
-          document.getElementById('resName').innerText = data.name;
-          document.getElementById('resLevel').innerText = data.level;
-          document.getElementById('resNo').innerText = data.roomNo;
-          document.getElementById('resCurrentDebt').innerText = Number(data.currentDebt).toLocaleString('th-TH');
-          document.getElementById('resOldDebt').innerText = Number(data.oldDebt).toLocaleString('th-TH');
-          document.getElementById('resScholar').innerText = data.scholarship || '-';
-          document.getElementById('resStatus').innerText = data.status;
-        } else {
-          alert('ไม่พบข้อมูลรหัสนักศึกษานี้ในระบบ');
-        }
+        document.getElementById('mainHeader').innerText = data.header[0] || 'ระบบตรวจสอบข้อมูล';
+        document.getElementById('subHeader').innerText = data.header[1] || '';
+        document.getElementById('title_E').innerText = data.columns[4];
+        document.getElementById('title_G').innerText = data.columns[6];
+        document.getElementById('title_H').innerText = data.columns[7];
       })
-      .catch(err => alert('เกิดข้อผิดพลาดในการเชื่อมต่อข้อมูล'));
-  }
+      .catch(err => {
+        console.error("Error loading config:", err);
+        document.getElementById('mainHeader').innerText = 'เกิดข้อผิดพลาดในการเชื่อมต่อข้อมูล';
+      });
+  };
 
   function showLogin() {
     myModal = new bootstrap.Modal(document.getElementById('adminModal'));
